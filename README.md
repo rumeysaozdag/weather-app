@@ -1,101 +1,92 @@
-<div align="center">
+# Hava
 
-<img src="docs/qr-repo.png" alt="github.com/tc-yusufburakdemir/weather-app adresinin QR kodu" width="220">
+Hava, şehirlerin güncel hava durumunu ve tahminlerini gösteren bir Android uygulamasıdır. Şehir arayabilir, bir şehri favorilerine ekleyebilir ve yağış olasılığına göre önümüzdeki saatler için yol önerisi alabilirsin. Hava Asistanı da seçili şehrin tahminine göre sıcaklık, yağış, şemsiye ve kıyafet sorularına uygulama içinde yanıt verir.
 
-**Repoya erişim**
+Uygulama Kotlin ve Jetpack Compose ile geliştirilmiştir. Hava ve şehir verileri, API anahtarı gerektirmeyen Open-Meteo servislerinden alınır.
 
-[github.com/tc-yusufburakdemir/weather-app](https://github.com/tc-yusufburakdemir/weather-app)
+## Özellikler
 
-</div>
+- Şehir adıyla arama ve arama sonucundan şehir seçme
+- Anlık sıcaklık, hissedilen sıcaklık, nem, rüzgâr ve hava durumu bilgisi
+- Saatlik ve 7 günlük hava tahmini
+- Şehirleri favorilere kaydetme; kayıtlar cihazda saklanır
+- Favori şehirler için önümüzdeki saatlerin yağış olasılığına dayalı yol önerisi
+- Hava Asistanı ile hava tahminine dayalı sorulara uygulama içi yanıtlar
+- Yükleniyor, sonuç yok, veri ve hata durumları için ayrı ekranlar
 
-# Hava — Şehir Arama ve Hava Tahmini
+> Yol önerileri hava tahminine dayanır; uygulama canlı trafik veya harita rotası sağlamaz. Hava Asistanı uygulama içinde tahmin verisini kurallarla yorumlar; çevrimiçi bir yapay zekâ servisine bağlanmaz.
 
-Bilişim Kampı Android eğitiminin **referans çözümü**. Open-Meteo servisinden şehir arar, seçilen şehrin anlık durumunu, saatlik ve 7 günlük tahminini gösterir; yükleniyor / veri / boş / hata durumlarının tamamını ele alır.
+## Teknolojiler
 
-Mimari ayrıntıları için [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
+- Kotlin 2.2.20 ve Java 17
+- Jetpack Compose, Material 3 ve Navigation Compose
+- ViewModel, StateFlow ve Kotlin Coroutines
+- Retrofit, Gson ve OkHttp
+- Open-Meteo Geocoding API ve Forecast API
+- JUnit ve MockWebServer ile birim testleri
 
-**Teknoloji:** Kotlin · Jetpack Compose (Material 3) · ViewModel + StateFlow · Coroutines · Retrofit + Gson · Navigation Compose
+## Nasıl çalışır?
 
-## Mimari — üç katman
+Arayüz, veri alma ve ekran durumu birbirinden ayrıdır:
 
-*UI görünümü çizer, ViewModel state'i yönetir, Repository veriye erişir.*
-
-```
-UI (Composable)  →  ViewModel (StateFlow)  →  Repository (suspend)  →  Retrofit → Open-Meteo
-```
-
-```
-com.kampplus.hava
-├── MainActivity.kt            Uygulamanın kapısı
-├── model/                     Veri neye benzer?
-│   ├── City.kt                City + CitySearchResponse
-│   ├── Forecast.kt            Forecast + Current/Hourly/Daily
-│   └── WeatherCondition.kt    WMO kodu → emoji + Türkçe etiket
-├── data/                      Veri nereden gelir?
-│   ├── ApiClient.kt           object + Retrofit kurulumu
-│   ├── CityApi.kt             @GET v1/search
-│   ├── ForecastApi.kt         @GET v1/forecast
-│   ├── ForecastResponse.kt    DTO + sütun→satır çevrimi
-│   ├── CityRepository.kt      suspend search()
-│   └── WeatherRepository.kt   suspend getForecast()
-└── ui/                        Ne çizilir, ne zaman değişir?
-    ├── LoadState.kt           Loading / Success / Empty / Error
-    ├── HavaNavHost.kt         iki ekran arası geçiş
-    ├── city/                  CityScreen · CityViewModel · CityCard
-    ├── forecast/              ForecastScreen · ForecastViewModel
-    ├── component/             ShimmerList · EmptyView · ErrorView
-    └── theme/                 Color · Theme · Type
+```text
+Compose ekranı → ViewModel (StateFlow) → Repository → Retrofit → Open-Meteo
 ```
 
-## API — Open-Meteo (anahtar gerekmez)
+`ui/` kullanıcı arayüzünü, `model/` şehir ve tahmin modellerini, `data/` ise API bağlantısını ve favori şehirlerin yerel kaydını içerir. ViewModel'ler yükleniyor, başarılı, boş ve hata durumlarını üretir; Compose ekranları bu duruma göre görünümü günceller.
 
-| Amaç | Çağrı |
-|---|---|
-| Şehir arama | `https://geocoding-api.open-meteo.com/v1/search?name=Ankara&count=10&language=tr` |
-| Tahmin | `https://api.open-meteo.com/v1/forecast?latitude=..&longitude=..&current=..&hourly=..&daily=..&forecast_days=7&timezone=auto` |
+## Gereksinimler ve çalıştırma
 
-- Sonuç yoksa arama yanıtında `results` alanı **hiç gelmez** → Boş (Empty) durumu.
-- Tahmin yanıtı **sütun** biçimindedir: `hourly.time[i]` ile `hourly.temperature_2m[i]` aynı saate aittir.
-- `weather_code` WMO standardındadır (0 açık, 61 yağmur, 95 fırtına…); `WeatherCondition.fromWeatherCode` ile görünüme çevrilir.
-- Ücretsiz kullanım ticari olmayan projeler içindir (~10.000 istek/gün).
+- Android Studio
+- JDK 17
+- Android SDK 36
+- Android 8.0 (API 26) veya üzeri bir cihaz/emülatör
 
-## Çalıştırma
+Projeyi Android Studio'da açıp Gradle eşitlemesinin tamamlanmasını bekleyebilirsin. Komut satırından Windows'ta:
+
+```powershell
+.\gradlew.bat assembleDebug
+.\gradlew.bat testDebugUnitTest
+```
+
+macOS veya Linux'ta:
 
 ```bash
-./gradlew assembleDebug        # debug APK
-./gradlew testDebugUnitTest    # unit testler
-./gradlew spotlessApply        # ktlint formatı (denetim için spotlessCheck)
-./gradlew assembleRelease      # release APK (R8 açık)
+./gradlew assembleDebug
+./gradlew testDebugUnitTest
 ```
 
-Android SDK yolunu `local.properties` içinde `sdk.dir=...` ile veya `ANDROID_HOME` ortam değişkeniyle verin.
+Debug APK, `app/build/outputs/apk/debug/` altında oluşturulur. Android SDK yolu bulunamazsa `local.properties` dosyasındaki `sdk.dir` değerini veya `ANDROID_HOME` ortam değişkenini ayarla. `local.properties` kişisel makine ayarıdır ve depoya eklenmez.
 
-## Checkpoint'ler
+## Sürüm bilgisi
 
-Her ders bloğunun sonunda projenin olması gereken hâli ayrı bir branch'tedir. `cpN` = **Uygulama N+1**.
+| Alan | Değer |
+|---|---|
+| Uygulama sürümü | 1.0.0 |
+| Android sürüm kodu | 2 |
+| Minimum Android | API 26 (Android 8.0) |
+| Hedef Android API | 36 |
 
-| Branch | Karşılığı | İçerik |
-|---|---|---|
-| `cp1-baslangic` | — | Boş Empty Activity projesi, "Merhaba Kamp!" |
-| `cp1-bitis` / `cp2-baslangic` | Uygulama 2 | Sabit şehir listesi, `CityCard` + plaka rozeti, `LazyColumn`, tıklamada `Log.d` |
-| `cp2-bitis` / `cp3-baslangic` | Uygulama 3 | Arama kutusu, `rememberSaveable`, filtre, boş durum, `CityViewModel`, `model/data/ui` paketleri |
-| `cp3-bitis` / `cp4-baslangic` | Uygulama 4 | Retrofit + Gson, `ApiClient`, `CityRepository`, dört durum, Shimmer, `try/catch` |
-| `cp4-bitis` (= `main`) | Uygulama 5 | Tahmin ekranı + navigasyon, cila, testler |
+Sürüm değerleri `app/build.gradle.kts` içinde tanımlıdır.
 
-Bir bloğu yetiştiremediyseniz kodunuzu `katilimci/<ad>/cpN` branch'ine kaydedip sonraki bloğun başlangıç branch'ine geçin.
+## Proje yapısı
 
-`archive/v1-clean-arch` branch'i, projenin önceki Clean Architecture + Hilt + Room sürümünü saklar.
+```text
+app/src/main/java/com/kampplus/hava/
+├── data/       Open-Meteo istemcileri, repository'ler ve favori kaydı
+├── model/      Şehir, tahmin ve hava durumu modelleri
+└── ui/
+    ├── city/      Şehir arama ve favoriler
+    ├── forecast/  Hava durumu ve tahmin ekranı
+    ├── route/     Yağışa dayalı yol önerisi
+    ├── component/ Paylaşılan bileşenler ve Hava Asistanı
+    └── theme/     Compose tema ve tipografi
+```
 
 ## Testler
 
-| Test | Neyi korur |
-|---|---|
-| `WeatherConditionTest` | WMO kod → görünüm eşlemesi |
-| `CityApiTest` | Gson `@SerializedName` eşlemesi (sessizce bozulur) |
-| `ForecastApiTest` | Sütun → satır çevrimi (index kayması hata vermez) |
-| `CityViewModelTest` | Dört durum + "Tekrar dene" |
-| `ForecastViewModelTest` | Rota parametreleri + durumlar |
+`app/src/test/` altındaki birim testleri hava durumu kodlarının eşleşmesini, API yanıtlarının çözülmesini, tahmin verisinin dönüştürülmesini ve şehir/tahmin ViewModel durumlarını kapsar.
 
 ## Release imzası
 
-`keystore.properties.example` dosyasını `keystore.properties` olarak kopyalayıp doldurun (repoya girmez). Dosya yoksa release APK debug anahtarıyla imzalanır.
+Release derlemesini kendi anahtarınla imzalamak için `keystore.properties.example` dosyasını `keystore.properties` adıyla kopyalayıp kendi imza bilgilerinle doldur. Gerçek imza dosyaları ve anahtarlar depoya eklenmemelidir. Bu dosya yoksa release derlemesi debug anahtarını kullanır; mağazada yayımlamak için kendi release anahtarın gerekir.
