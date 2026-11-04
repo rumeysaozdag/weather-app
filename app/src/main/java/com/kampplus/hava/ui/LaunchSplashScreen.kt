@@ -96,7 +96,7 @@ fun LaunchSplashScreen() {
 
             Spacer(Modifier.height(30.dp))
             Text(
-                "Havadis",
+                "Havadaş",
                 color = Color.White,
                 fontSize = 36.sp,
                 fontWeight = FontWeight.Bold,

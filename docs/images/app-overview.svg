@@ -24,8 +24,8 @@
     <rect x="80" y="74" width="56" height="56" rx="18" fill="#203650"/>
     <circle cx="106" cy="99" r="10" fill="#FFD54F"/>
     <path d="M94 113h24a8 8 0 0 0-2-15 11 11 0 0 0-20 4 6 6 0 0 0-2 11Z" fill="white"/>
-    <text x="154" y="104" font-size="24" font-weight="750" fill="#203650">HAVA</text>
-    <text x="80" y="193" font-size="54" font-weight="750" fill="#203650">Havanı bil. Planını yap.</text>
+    <text x="154" y="104" font-size="24" font-weight="750" fill="#203650">HAVADAŞ</text>
+    <text x="80" y="193" font-size="48" font-weight="750" fill="#203650">Bugün gökyüzünde ne var?</text>
     <text x="82" y="232" font-size="20" fill="#587187">Şehir arama, hava tahmini ve günlük planın tek yerde.</text>
     <text x="1360" y="108" text-anchor="end" font-size="13" font-weight="650" letter-spacing="2.2" fill="#587187">ANDROID UYGULAMASI · ARAYÜZ ÖNİZLEMESİ</text>
   </g>
@@ -36,7 +36,7 @@
     <rect x="215" y="290" width="118" height="20" rx="10" fill="#13283D"/>
   </g>
   <g>
-    <text x="108" y="344" class="white" font-size="23" font-weight="700">Hava</text>
+    <text x="108" y="344" class="white" font-size="23" font-weight="700">Havadaş</text>
     <text x="108" y="367" class="muted" font-size="12">Şehrini bul, havanı öğren</text>
     <circle cx="425" cy="347" r="19" class="glass"/><text x="425" y="353" text-anchor="middle" class="white" font-size="18">☼</text>
     <rect x="102" y="391" width="344" height="52" rx="17" class="glass"/>
