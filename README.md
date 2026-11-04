@@ -6,6 +6,10 @@ Havadaş, şehirlerin güncel hava durumunu ve tahminlerini gösteren bir Androi
 
 Uygulama Kotlin ve Jetpack Compose ile geliştirilmiştir. Hava ve şehir verileri, API anahtarı gerektirmeyen Open-Meteo servislerinden alınır.
 
+## Eğitim kaynağı ve proje ilişkisi
+
+Havadaş, [Bilişim Kampı Android eğitimindeki hava durumu referans projesinden](https://github.com/tc-yusufburakdemir/weather-app) yola çıkar. Kaynak depoda şehir arama, tahmin ekranı ve üç katmanlı mimari adım adım gösterilir. Bu depoda ise bu temel; favori şehirler, yol önerisi, uygulama içi hava asistanı ve Havadaş arayüzüyle genişletilmiştir. Kaynak projedeki mimari notları için [ARCHITECTURE.md](https://github.com/tc-yusufburakdemir/weather-app/blob/main/docs/ARCHITECTURE.md) dosyasına bakabilirsin.
+
 ## Uygulamaya bakış
 
 ![Havadaş uygulamasının şehir arama, hava tahmini ve yol önerisi ekranlarının arayüz önizlemesi](docs/images/app-overview.svg)
@@ -42,6 +46,17 @@ Compose ekranı → ViewModel (StateFlow) → Repository → Retrofit → Open-M
 ```
 
 `ui/` kullanıcı arayüzünü, `model/` şehir ve tahmin modellerini, `data/` ise API bağlantısını ve favori şehirlerin yerel kaydını içerir. ViewModel'ler yükleniyor, başarılı, boş ve hata durumlarını üretir; Compose ekranları bu duruma göre görünümü günceller.
+
+## Open-Meteo API ve veri dönüşümü
+
+Şehir arama ve hava tahmini için Open-Meteo'nun iki servisi kullanılır; API anahtarı gerekmez.
+
+| Amaç | İstek örneği |
+|---|---|
+| Şehir arama | `https://geocoding-api.open-meteo.com/v1/search?name=Ankara&count=10&language=tr` |
+| Hava tahmini | `https://api.open-meteo.com/v1/forecast?latitude=39.92&longitude=32.85&current=...&hourly=...&daily=...&forecast_days=7&timezone=auto` |
+
+Tahmin servisi saatlik ve günlük alanları ayrı listeler halinde, yani sütun biçiminde döndürür. Aynı listedeki aynı indeks birbiriyle eşleşen zaman, sıcaklık ve hava durumu değerlerini verir; `ForecastResponse.toForecast()` bu veriyi ekranların kullandığı tahmin modellerine çevirir. Open-Meteo'nun WMO `weather_code` değeri `WeatherCondition.fromWeatherCode()` ile Türkçe açıklama ve simgeye eşlenir. Şehir aramasında `results` dönmezse ekran boş sonuç durumunu gösterir.
 
 ## Gereksinimler ve çalıştırma
 
@@ -91,10 +106,34 @@ app/src/main/java/com/kampplus/hava/
     └── theme/     Compose tema ve tipografi
 ```
 
+## Eğitim checkpoint'leri
+
+Kaynak eğitim deposu uygulamayı ders aşamalarına ayırır. Bu branch'ler **kaynak depoda** bulunur; burada listelenmeleri Havadaş deposunda aynı branch'lerin bulunduğu anlamına gelmez.
+
+| Kaynak branch | Aşama | İçerik |
+|---|---|---|
+| [`cp1-baslangic`](https://github.com/tc-yusufburakdemir/weather-app/tree/cp1-baslangic) | Başlangıç | Boş Empty Activity ve “Merhaba Kamp!” |
+| [`cp1-bitis` / `cp2-baslangic`](https://github.com/tc-yusufburakdemir/weather-app/tree/cp1-bitis) | Uygulama 2 | Sabit şehir listesi, `CityCard`, plaka rozeti, `LazyColumn` ve karta dokununca `Log.d` |
+| [`cp2-bitis` / `cp3-baslangic`](https://github.com/tc-yusufburakdemir/weather-app/tree/cp2-bitis) | Uygulama 3 | Arama, `rememberSaveable`, filtreleme, boş durum, `CityViewModel` ve `model/data/ui` paketleri |
+| [`cp3-bitis` / `cp4-baslangic`](https://github.com/tc-yusufburakdemir/weather-app/tree/cp3-bitis) | Uygulama 4 | Retrofit + Gson, `ApiClient`, `CityRepository`, dört yükleme durumu, Shimmer ve `try/catch` |
+| [`cp4-bitis` (kaynak depoda `main`)](https://github.com/tc-yusufburakdemir/weather-app/tree/cp4-bitis) | Uygulama 5 | Tahmin ekranı, navigasyon, arayüz cilası ve testler |
+
+Kaynak depodaki [`archive/v1-clean-arch`](https://github.com/tc-yusufburakdemir/weather-app/tree/archive/v1-clean-arch) branch'i önceki Clean Architecture + Hilt + Room sürümünü içerir.
+
 ## Testler
 
-`app/src/test/` altındaki birim testleri hava durumu kodlarının eşleşmesini, API yanıtlarının çözülmesini, tahmin verisinin dönüştürülmesini ve şehir/tahmin ViewModel durumlarını kapsar.
+`app/src/test/` altındaki birim testleri model, API ve ekran durumlarını korur:
+
+| Test | Kapsadığı davranış |
+|---|---|
+| `WeatherConditionTest` | WMO kodlarının Türkçe hava durumu ve simgelere eşlenmesi |
+| `CityApiTest` | Şehir yanıtı alanlarının Gson ile doğru okunması |
+| `ForecastApiTest` | Tahmin yanıtındaki sütunların saatlik/günlük modellere dönüştürülmesi |
+| `CityViewModelTest` | Arama, Loading/Success/Empty/Error durumları ve tekrar deneme |
+| `ForecastViewModelTest` | Navigasyon parametreleri, tahmin yükleme ve hata durumları |
 
 ## Release imzası
 
 Release derlemesini kendi anahtarınla imzalamak için `keystore.properties.example` dosyasını `keystore.properties` adıyla kopyalayıp kendi imza bilgilerinle doldur. Gerçek imza dosyaları ve anahtarlar depoya eklenmemelidir. Bu dosya yoksa release derlemesi debug anahtarını kullanır; mağazada yayımlamak için kendi release anahtarın gerekir.
+
+Release APK oluşturmak için Windows'ta `.\gradlew.bat assembleRelease`, macOS/Linux'ta `./gradlew assembleRelease` komutunu kullanabilirsin.
