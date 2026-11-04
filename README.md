@@ -4,6 +4,12 @@ Hava, şehirlerin güncel hava durumunu ve tahminlerini gösteren bir Android uy
 
 Uygulama Kotlin ve Jetpack Compose ile geliştirilmiştir. Hava ve şehir verileri, API anahtarı gerektirmeyen Open-Meteo servislerinden alınır.
 
+## Uygulamaya bakış
+
+![Hava uygulamasının şehir arama, hava tahmini ve yol önerisi ekranlarının arayüz önizlemesi](docs/images/app-overview.svg)
+
+*Bu görsel uygulama arayüzünün önizlemesidir; içindeki hava durumu değerleri örnektir, canlı ekran görüntüsü değildir.*
+
 ## Özellikler
 
 - Şehir adıyla arama ve arama sonucundan şehir seçme

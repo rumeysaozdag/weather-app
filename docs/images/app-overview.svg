@@ -1,0 +1,117 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="920" viewBox="0 0 1440 920" fill="none">
+  <defs>
+    <linearGradient id="page" x1="0" y1="0" x2="1440" y2="920" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#EEF5FA"/><stop offset="1" stop-color="#DCE8F1"/>
+    </linearGradient>
+    <linearGradient id="screen" x1="0" y1="0" x2="0" y2="690" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#688597"/><stop offset=".55" stop-color="#405F78"/><stop offset="1" stop-color="#203650"/>
+    </linearGradient>
+    <linearGradient id="aqua" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#B5F0E8"/><stop offset="1" stop-color="#74CFC7"/></linearGradient>
+    <filter id="shadow" x="-20%" y="-15%" width="140%" height="140%"><feDropShadow dx="0" dy="18" stdDeviation="20" flood-color="#203650" flood-opacity=".16"/></filter>
+    <filter id="glow"><feGaussianBlur stdDeviation="36"/></filter>
+    <style>
+      text{font-family:Inter,'Segoe UI',Arial,sans-serif}
+      .muted{fill:#D5E2EC}.white{fill:#fff}.soft{fill:#EFF6FA}.mint{fill:#B5F0E8}
+      .phone{fill:url(#screen);stroke:#fff;stroke-opacity:.85;stroke-width:8}
+      .glass{fill:#fff;fill-opacity:.13;stroke:#fff;stroke-opacity:.13;stroke-width:1.5}
+      .outline{fill:none;stroke:#fff;stroke-opacity:.18;stroke-width:1.5}
+    </style>
+  </defs>
+  <rect width="1440" height="920" rx="36" fill="url(#page)"/>
+  <circle cx="1335" cy="100" r="130" fill="#B5F0E8" opacity=".44" filter="url(#glow)"/>
+  <circle cx="78" cy="836" r="130" fill="#B7C8FF" opacity=".36" filter="url(#glow)"/>
+  <g>
+    <rect x="80" y="74" width="56" height="56" rx="18" fill="#203650"/>
+    <circle cx="106" cy="99" r="10" fill="#FFD54F"/>
+    <path d="M94 113h24a8 8 0 0 0-2-15 11 11 0 0 0-20 4 6 6 0 0 0-2 11Z" fill="white"/>
+    <text x="154" y="104" font-size="24" font-weight="750" fill="#203650">HAVA</text>
+    <text x="80" y="193" font-size="54" font-weight="750" fill="#203650">Havanı bil. Planını yap.</text>
+    <text x="82" y="232" font-size="20" fill="#587187">Şehir arama, hava tahmini ve günlük planın tek yerde.</text>
+    <text x="1360" y="108" text-anchor="end" font-size="13" font-weight="650" letter-spacing="2.2" fill="#587187">ANDROID UYGULAMASI · ARAYÜZ ÖNİZLEMESİ</text>
+  </g>
+
+  <!-- Search screen -->
+  <g filter="url(#shadow)">
+    <rect class="phone" x="78" y="278" width="392" height="584" rx="40"/>
+    <rect x="215" y="290" width="118" height="20" rx="10" fill="#13283D"/>
+  </g>
+  <g>
+    <text x="108" y="344" class="white" font-size="23" font-weight="700">Hava</text>
+    <text x="108" y="367" class="muted" font-size="12">Şehrini bul, havanı öğren</text>
+    <circle cx="425" cy="347" r="19" class="glass"/><text x="425" y="353" text-anchor="middle" class="white" font-size="18">☼</text>
+    <rect x="102" y="391" width="344" height="52" rx="17" class="glass"/>
+    <circle cx="125" cy="417" r="7" class="outline"/><path d="m130 422 6 6" stroke="white" stroke-opacity=".75" stroke-width="2" stroke-linecap="round"/>
+    <text x="148" y="422" class="soft" font-size="14">Ankara</text><text x="416" y="422" text-anchor="end" class="muted" font-size="13">×</text>
+    <text x="106" y="474" class="muted" font-size="12" font-weight="650" letter-spacing="1">ŞEHİR SONUÇLARI</text>
+    <rect x="102" y="492" width="344" height="83" rx="21" class="glass"/>
+    <circle cx="139" cy="534" r="22" fill="#FFD54F" fill-opacity=".18"/><text x="139" y="541" text-anchor="middle" font-size="22">☀️</text>
+    <text x="175" y="526" class="white" font-size="16" font-weight="650">Ankara</text><text x="175" y="548" class="muted" font-size="12">Türkiye · Ankara</text><text x="415" y="539" text-anchor="end" class="mint" font-size="20">☆</text>
+    <rect x="102" y="590" width="344" height="83" rx="21" class="glass"/>
+    <circle cx="139" cy="632" r="22" fill="#B5F0E8" fill-opacity=".17"/><text x="139" y="639" text-anchor="middle" font-size="22">🌧️</text>
+    <text x="175" y="624" class="white" font-size="16" font-weight="650">Ankara</text><text x="175" y="646" class="muted" font-size="12">Türkiye · Trabzon</text><text x="415" y="637" text-anchor="end" class="mint" font-size="20">☆</text>
+    <rect x="102" y="779" width="344" height="62" rx="0" fill="#203650" fill-opacity=".64"/>
+    <text x="158" y="805" text-anchor="middle" class="mint" font-size="16">⌕</text><text x="158" y="826" text-anchor="middle" class="soft" font-size="10">Ara</text>
+    <text x="274" y="805" text-anchor="middle" class="muted" font-size="16">☂</text><text x="274" y="826" text-anchor="middle" class="muted" font-size="10">Yol</text>
+    <text x="389" y="805" text-anchor="middle" class="muted" font-size="16">☆</text><text x="389" y="826" text-anchor="middle" class="muted" font-size="10">Şehirlerim</text>
+  </g>
+
+  <!-- Forecast screen -->
+  <g filter="url(#shadow)">
+    <rect class="phone" x="524" y="278" width="392" height="584" rx="40"/>
+    <rect x="661" y="290" width="118" height="20" rx="10" fill="#13283D"/>
+  </g>
+  <g>
+    <text x="554" y="344" class="white" font-size="23" font-weight="700">Ankara</text>
+    <text x="554" y="367" class="muted" font-size="12">Türkiye · Ankara</text>
+    <text x="720" y="433" text-anchor="middle" font-size="74">⛅</text>
+    <text x="720" y="502" text-anchor="middle" class="white" font-size="58" font-weight="300">21°</text>
+    <text x="720" y="528" text-anchor="middle" class="soft" font-size="15">Parçalı bulutlu</text>
+    <text x="720" y="552" text-anchor="middle" class="muted" font-size="12">Hissedilen 20° · Günün en yükseği 25°</text>
+    <rect x="550" y="574" width="340" height="66" rx="20" class="glass"/>
+    <text x="606" y="601" text-anchor="middle" class="muted" font-size="11">NEM</text><text x="606" y="624" text-anchor="middle" class="white" font-size="15" font-weight="650">%48</text>
+    <path d="M663 589v36" class="outline"/>
+    <text x="720" y="601" text-anchor="middle" class="muted" font-size="11">RÜZGÂR</text><text x="720" y="624" text-anchor="middle" class="white" font-size="15" font-weight="650">14 km/sa</text>
+    <path d="M777 589v36" class="outline"/>
+    <text x="834" y="601" text-anchor="middle" class="muted" font-size="11">YAĞIŞ</text><text x="834" y="624" text-anchor="middle" class="white" font-size="15" font-weight="650">%10</text>
+    <text x="555" y="675" class="white" font-size="16" font-weight="650">Saatlik tahmin</text><text x="887" y="675" text-anchor="end" class="mint" font-size="11">ÖNÜMÜZDEKİ SAATLER</text>
+    <rect x="550" y="690" width="340" height="70" rx="18" class="glass"/>
+    <g text-anchor="middle" class="soft" font-size="11"><text x="589" y="713">Şimdi</text><text x="653" y="713">14:00</text><text x="717" y="713">15:00</text><text x="781" y="713">16:00</text><text x="850" y="713">17:00</text></g>
+    <g text-anchor="middle" class="white" font-size="14" font-weight="600"><text x="589" y="741">21°</text><text x="653" y="741">22°</text><text x="717" y="741">22°</text><text x="781" y="741">21°</text><text x="850" y="741">20°</text></g>
+    <text x="555" y="790" class="white" font-size="16" font-weight="650">7 günlük görünüm</text>
+    <rect x="550" y="803" width="340" height="36" rx="13" class="glass"/>
+    <text x="568" y="826" class="soft" font-size="12">Bugün</text><text x="632" y="826" font-size="15">☀️</text><text x="870" y="826" text-anchor="end" class="white" font-size="12">25° / 16°</text>
+  </g>
+
+  <!-- Route advice screen -->
+  <g filter="url(#shadow)">
+    <rect class="phone" x="970" y="278" width="392" height="584" rx="40"/>
+    <rect x="1107" y="290" width="118" height="20" rx="10" fill="#13283D"/>
+  </g>
+  <g>
+    <text x="1000" y="344" class="white" font-size="23" font-weight="700">Yol önerisi</text>
+    <text x="1000" y="367" class="muted" font-size="12">Yağışa göre yol planla</text>
+    <rect x="997" y="392" width="338" height="83" rx="21" class="glass"/>
+    <text x="1024" y="442" font-size="30">🌧️</text><text x="1070" y="422" class="white" font-size="15" font-weight="650">Yola çıkmadan önce</text>
+    <text x="1070" y="445" class="muted" font-size="12">Önümüzdeki saatlerin yağışını</text><text x="1070" y="462" class="muted" font-size="12">karşılaştır, uygun zamanı seç.</text>
+    <text x="1000" y="509" class="muted" font-size="12">TAHMİN ALINACAK ŞEHİR</text>
+    <rect x="997" y="521" width="91" height="36" rx="18" fill="url(#aqua)"/><text x="1042" y="544" text-anchor="middle" fill="#203650" font-size="12" font-weight="700">Ankara</text>
+    <rect x="1097" y="521" width="91" height="36" rx="18" class="glass"/><text x="1142" y="544" text-anchor="middle" class="soft" font-size="12">İzmir</text>
+    <rect x="1197" y="521" width="91" height="36" rx="18" class="glass"/><text x="1242" y="544" text-anchor="middle" class="soft" font-size="12">Bursa</text>
+    <rect x="997" y="575" width="338" height="125" rx="21" fill="#B5F0E8" fill-opacity=".16" stroke="#B5F0E8" stroke-opacity=".25"/>
+    <text x="1020" y="606" class="mint" font-size="11" font-weight="700" letter-spacing="1">ANKARA İÇİN ÖNERİ</text>
+    <text x="1020" y="637" class="white" font-size="16" font-weight="650">Yağış ihtimali düşük görünüyor.</text>
+    <text x="1020" y="661" class="soft" font-size="13">15:00 civarı yola çıkabilirsin.</text>
+    <text x="1020" y="682" class="muted" font-size="11">Önümüzdeki 6 saatte en yüksek: %20</text>
+    <text x="1000" y="730" class="white" font-size="16" font-weight="650">Saatlik yağış olasılığı</text>
+    <g>
+      <rect x="997" y="746" width="50" height="62" rx="15" class="glass"/><text x="1022" y="767" text-anchor="middle" class="muted" font-size="10">14:00</text><text x="1022" y="792" text-anchor="middle" class="white" font-size="14">%10</text>
+      <rect x="1056" y="746" width="50" height="62" rx="15" class="glass"/><text x="1081" y="767" text-anchor="middle" class="muted" font-size="10">15:00</text><text x="1081" y="792" text-anchor="middle" class="white" font-size="14">%5</text>
+      <rect x="1115" y="746" width="50" height="62" rx="15" class="glass"/><text x="1140" y="767" text-anchor="middle" class="muted" font-size="10">16:00</text><text x="1140" y="792" text-anchor="middle" class="white" font-size="14">%10</text>
+      <rect x="1174" y="746" width="50" height="62" rx="15" class="glass"/><text x="1199" y="767" text-anchor="middle" class="muted" font-size="10">17:00</text><text x="1199" y="792" text-anchor="middle" class="white" font-size="14">%15</text>
+      <rect x="1233" y="746" width="50" height="62" rx="15" class="glass"/><text x="1258" y="767" text-anchor="middle" class="muted" font-size="10">18:00</text><text x="1258" y="792" text-anchor="middle" class="white" font-size="14">%20</text>
+      <rect x="1292" y="746" width="43" height="62" rx="15" class="glass"/><text x="1313" y="767" text-anchor="middle" class="muted" font-size="10">19:00</text><text x="1313" y="792" text-anchor="middle" class="white" font-size="14">%15</text>
+    </g>
+    <text x="1000" y="836" class="muted" font-size="10">Hava tahminine dayalıdır; canlı trafik ve rota içermez.</text>
+  </g>
+  <text x="720" y="897" text-anchor="middle" fill="#6F8798" font-size="12">Görsel, uygulama ekranlarının tasarım önizlemesidir. Örnek değerler gerçek zamanlı hava verisi değildir.</text>
+</svg>
