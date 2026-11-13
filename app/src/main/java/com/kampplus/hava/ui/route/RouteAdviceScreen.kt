@@ -1,11 +1,11 @@
 package com.kampplus.hava.ui.route
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -15,10 +15,14 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
@@ -33,8 +37,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -44,7 +47,6 @@ import com.kampplus.hava.model.Forecast
 import com.kampplus.hava.ui.LoadState
 import com.kampplus.hava.ui.component.ErrorView
 import com.kampplus.hava.ui.component.WeatherAssistantButton
-import com.kampplus.hava.ui.theme.HavaTheme
 import java.time.format.DateTimeFormatter
 
 @Composable
@@ -84,95 +86,163 @@ private fun RouteAdviceScreen(
     onRetry: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Box(
-        modifier = modifier.fillMaxSize().background(
-            Brush.verticalGradient(listOf(Color(0xFF688597), Color(0xFF405F78), Color(0xFF203650)))
-        )
-    ) {
-        Scaffold(
-            modifier = Modifier.fillMaxSize(),
-            containerColor = Color.Transparent,
-            contentColor = Color.White,
-            floatingActionButton = {
-                WeatherAssistantButton(
-                    forecast = (uiState as? LoadState.Success)?.data,
-                    cityName = selectedCity?.name.orEmpty()
-                )
-            },
-            topBar = {
+    Scaffold(
+        modifier = modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background),
+        containerColor = MaterialTheme.colorScheme.background,
+        contentColor = MaterialTheme.colorScheme.onBackground,
+        floatingActionButton = {
+            WeatherAssistantButton(
+                forecast = (uiState as? LoadState.Success)?.data,
+                cityName = selectedCity?.name.orEmpty()
+            )
+        },
+        topBar = {
+            Column {
                 TopAppBar(
                     title = {
                         Column {
-                            Text("Yol önerisi", color = Color.White)
-                            Text("Yağışa göre yol planla", style = MaterialTheme.typography.labelSmall, color = Color.White.copy(alpha = 0.72f))
+                            Text(
+                                text = "Yol Önerisi",
+                                style = MaterialTheme.typography.titleMedium,
+                                color = MaterialTheme.colorScheme.onBackground
+                            )
+                            Text(
+                                text = "Yağışa göre yola çıkış planı",
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
                         }
                     },
-                    colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent)
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = MaterialTheme.colorScheme.background,
+                        titleContentColor = MaterialTheme.colorScheme.onBackground
+                    )
                 )
+                HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
             }
-        ) { innerPadding ->
-            Column(
-                modifier = Modifier.fillMaxSize().padding(innerPadding).padding(horizontal = 18.dp),
-                verticalArrangement = Arrangement.spacedBy(14.dp)
+        }
+    ) { innerPadding ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
+                .verticalScroll(rememberScrollState())
+                .padding(horizontal = 16.dp, vertical = 12.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            Surface(
+                shape = RoundedCornerShape(8.dp),
+                color = MaterialTheme.colorScheme.surfaceVariant,
+                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
             ) {
-                Surface(
-                    shape = RoundedCornerShape(24.dp),
-                    color = Color.White.copy(alpha = 0.13f),
-                    contentColor = Color.White
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(14.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth().padding(18.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(14.dp)
+                    Text("🌧️", style = MaterialTheme.typography.headlineSmall)
+                    Column {
+                        Text(
+                            text = "Yola çıkmadan önce",
+                            style = MaterialTheme.typography.titleSmall,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                        Text(
+                            text = "Önümüzdeki saatlerin yağışını karşılaştır, daha uygun zamanı seç.",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
+            }
+
+            if (cities.isEmpty()) {
+                Surface(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(8.dp),
+                    color = MaterialTheme.colorScheme.surface,
+                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
+                ) {
+                    Column(
+                        modifier = Modifier.padding(24.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
-                        Text("🌧️", style = MaterialTheme.typography.displaySmall)
-                        Column {
-                            Text("Yola çıkmadan önce", style = MaterialTheme.typography.titleMedium)
-                            Text("Önümüzdeki saatlerin yağışını karşılaştır, daha uygun zamanı seç.", style = MaterialTheme.typography.bodySmall, color = Color.White.copy(alpha = 0.8f))
+                        Text(
+                            text = "Önce bir şehir ekle",
+                            style = MaterialTheme.typography.titleMedium,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                        Text(
+                            text = "Şehirlerim sekmesinden bir şehri favorile. Yol önerisini o şehrin yağış tahminine göre hazırlayalım.",
+                            textAlign = TextAlign.Center,
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        Button(
+                            onClick = onOpenSearch,
+                            shape = RoundedCornerShape(6.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.primary,
+                                contentColor = MaterialTheme.colorScheme.onPrimary
+                            )
+                        ) {
+                            Text("Şehir ara")
                         }
                     }
                 }
-
-                if (cities.isEmpty()) {
-                    Surface(
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(22.dp),
-                        color = Color.White.copy(alpha = 0.12f),
-                        contentColor = Color.White
-                    ) {
-                        Column(
-                            modifier = Modifier.padding(22.dp),
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.spacedBy(12.dp)
-                        ) {
-                            Text("Önce bir şehir ekle", style = MaterialTheme.typography.titleMedium)
-                            Text("Şehirlerim sekmesinden bir şehri favorile. Yol önerisini o şehrin yağış tahminine göre hazırlayalım.", textAlign = TextAlign.Center, color = Color.White.copy(alpha = 0.8f))
-                            Button(onClick = onOpenSearch) { Text("Şehir ara") }
-                        }
-                    }
-                } else {
-                    Text("Tahmin alınacak şehir", style = MaterialTheme.typography.labelLarge, color = Color.White.copy(alpha = 0.8f))
-                    Row(
-                        modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        cities.forEach { city ->
-                            FilterChip(
-                                selected = city.id == selectedCity?.id,
-                                onClick = { onCitySelected(city) },
-                                label = { Text(city.name) }
+            } else {
+                Text(
+                    text = "TAHMİN ALINACAK ŞEHİR",
+                    style = MaterialTheme.typography.labelMedium.copy(fontFamily = FontFamily.Monospace),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .horizontalScroll(rememberScrollState()),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    cities.forEach { city ->
+                        val isSelected = city.id == selectedCity?.id
+                        FilterChip(
+                            selected = isSelected,
+                            onClick = { onCitySelected(city) },
+                            label = { Text(city.name) },
+                            shape = RoundedCornerShape(6.dp),
+                            border = BorderStroke(
+                                1.dp,
+                                if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outlineVariant
+                            ),
+                            colors = FilterChipDefaults.filterChipColors(
+                                selectedContainerColor = MaterialTheme.colorScheme.primary,
+                                selectedLabelColor = MaterialTheme.colorScheme.onPrimary,
+                                containerColor = MaterialTheme.colorScheme.surface,
+                                labelColor = MaterialTheme.colorScheme.onSurface
                             )
-                        }
+                        )
                     }
+                }
 
-                    when (uiState) {
-                        LoadState.Loading -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                            CircularProgressIndicator(color = Color.White)
-                        }
-                        LoadState.Empty -> Text("Bu şehir için yağış tahmini bulunamadı.", color = Color.White)
-                        is LoadState.Error -> HavaTheme(darkTheme = true) { ErrorView(uiState.message, onRetry = onRetry) }
-                        is LoadState.Success -> RouteForecastAdvice(city = selectedCity, forecast = uiState.data)
+                when (uiState) {
+                    LoadState.Loading -> Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 48.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
                     }
+                    LoadState.Empty -> Text(
+                        text = "Bu şehir için yağış tahmini bulunamadı.",
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    is LoadState.Error -> ErrorView(uiState.message, onRetry = onRetry)
+                    is LoadState.Success -> RouteForecastAdvice(city = selectedCity, forecast = uiState.data)
                 }
             }
         }
@@ -192,40 +262,80 @@ private fun RouteForecastAdvice(city: City?, forecast: Forecast) {
         else -> "Önümüzdeki saatlerde yağış ihtimali düşük. ${bestTime?.let { "$it civarı" } ?: "Uygun gördüğün saatte"} yola çıkabilirsin."
     }
 
-    Column(modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
         AdviceCard(
             title = "${city?.name ?: "Şehrin"} için öneri",
             message = recommendation,
             icon = if (highestChance >= 60) "☔" else "🛣️"
         )
-        Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-            Text("Saatlik yağış", style = MaterialTheme.typography.titleMedium, color = Color.White, modifier = Modifier.weight(1f))
-            Text("En yüksek: %$highestChance", style = MaterialTheme.typography.labelMedium, color = Color.White.copy(alpha = 0.78f))
-        }
+
         Row(
-            modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = "Saatlik yağış",
+                style = MaterialTheme.typography.titleSmall,
+                color = MaterialTheme.colorScheme.onBackground,
+                modifier = Modifier.weight(1f)
+            )
+            Surface(
+                shape = RoundedCornerShape(4.dp),
+                color = MaterialTheme.colorScheme.surfaceVariant,
+                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
+            ) {
+                Text(
+                    text = "En yüksek: %$highestChance",
+                    style = MaterialTheme.typography.labelSmall.copy(fontFamily = FontFamily.Monospace),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                )
+            }
+        }
+
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .horizontalScroll(rememberScrollState()),
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             upcoming.forEach { hour ->
                 val chance = hour.precipitationProbability ?: 0
                 Surface(
-                    modifier = Modifier.size(width = 72.dp, height = 92.dp),
-                    shape = RoundedCornerShape(18.dp),
-                    color = Color.White.copy(alpha = 0.13f),
-                    contentColor = Color.White
+                    modifier = Modifier.size(width = 76.dp, height = 88.dp),
+                    shape = RoundedCornerShape(8.dp),
+                    color = MaterialTheme.colorScheme.surface,
+                    contentColor = MaterialTheme.colorScheme.onSurface,
+                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
                 ) {
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.Center
                     ) {
-                        Text(hour.time.format(DateTimeFormatter.ofPattern("HH:mm")), style = MaterialTheme.typography.labelSmall)
-                        Spacer(Modifier.height(5.dp))
-                        Text("${chance}%", style = MaterialTheme.typography.titleMedium)
-                        Text("yağış", style = MaterialTheme.typography.labelSmall, color = Color.White.copy(alpha = 0.72f))
+                        Text(
+                            text = hour.time.format(DateTimeFormatter.ofPattern("HH:mm")),
+                            style = MaterialTheme.typography.labelSmall.copy(fontFamily = FontFamily.Monospace),
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        Spacer(Modifier.height(6.dp))
+                        Text(
+                            text = "%$chance",
+                            style = MaterialTheme.typography.titleMedium,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                        Text(
+                            text = "yağış",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
                     }
                 }
             }
         }
+
         AdviceCard(
             title = "Yol ipucu",
             message = if (highestChance >= 50) {
@@ -235,11 +345,12 @@ private fun RouteForecastAdvice(city: City?, forecast: Forecast) {
             },
             icon = "💡"
         )
+
         Text(
-            "Bu öneri hava tahminine dayanır; canlı trafik veya harita rotası içermez.",
+            text = "Bu öneri hava tahminine dayanır; canlı trafik veya harita rotası içermez.",
             style = MaterialTheme.typography.labelSmall,
-            color = Color.White.copy(alpha = 0.65f),
-            modifier = Modifier.padding(bottom = 12.dp)
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.padding(bottom = 72.dp)
         )
     }
 }
@@ -248,19 +359,28 @@ private fun RouteForecastAdvice(city: City?, forecast: Forecast) {
 private fun AdviceCard(title: String, message: String, icon: String) {
     Surface(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(22.dp),
-        color = Color.White.copy(alpha = 0.14f),
-        contentColor = Color.White
+        shape = RoundedCornerShape(8.dp),
+        color = MaterialTheme.colorScheme.surfaceVariant,
+        contentColor = MaterialTheme.colorScheme.onSurface,
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
     ) {
         Row(
-            modifier = Modifier.padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.padding(14.dp),
+            verticalAlignment = Alignment.Top,
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            Text(icon, style = MaterialTheme.typography.headlineSmall)
+            Text(icon, style = MaterialTheme.typography.titleLarge)
             Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                Text(title, style = MaterialTheme.typography.titleSmall)
-                Text(message, style = MaterialTheme.typography.bodySmall, color = Color.White.copy(alpha = 0.84f))
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.titleSmall,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                Text(
+                    text = message,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
             }
         }
     }

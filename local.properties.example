@@ -1,0 +1,3 @@
+# Bu satırı projenin yerel local.properties dosyasına ekleyin.
+# TomTom Developer Portal'dan Traffic API erişimi olan bir anahtar kullanın.
+TOMTOM_API_KEY=buraya_tomtom_api_anahtari

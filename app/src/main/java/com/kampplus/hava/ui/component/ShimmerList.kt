@@ -6,6 +6,7 @@ import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -17,8 +18,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -30,13 +31,7 @@ import androidx.compose.ui.unit.dp
 import com.kampplus.hava.ui.theme.HavaTheme
 
 /**
- * Yükleniyor durumunun görünümü.
- *
- * Shimmer, içerik gelmeden önce içeriğin **iskeletini** gösterir ve üzerinden
- * kayan bir ışıltı geçirir. Dönen bir çark yerine bunu tercih ederiz; çünkü
- * kullanıcı ne geleceğini önceden görür ve bekleme daha kısa hissedilir.
- *
- * Shimmer, Compose'a hazır gelmez; aşağıdaki animasyonu kendimiz yazıyoruz.
+ * Yükleniyor durumunun Notion tarzı iskelet (skeleton) görünümü.
  */
 @Composable
 fun ShimmerList(modifier: Modifier = Modifier, itemCount: Int = 6) {
@@ -44,35 +39,39 @@ fun ShimmerList(modifier: Modifier = Modifier, itemCount: Int = 6) {
     Column(
         modifier = modifier
             .fillMaxSize()
-            .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp)
+            .padding(vertical = 8.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        // Gerçek kartlarla aynı ölçülerde boş kartlar çizilir.
         repeat(itemCount) {
-            Card(modifier = Modifier.fillMaxWidth()) {
+            Surface(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(8.dp),
+                color = MaterialTheme.colorScheme.surface,
+                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
+            ) {
                 Row(
-                    modifier = Modifier.padding(12.dp),
+                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 12.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Box(
                         modifier = Modifier
-                            .size(52.dp)
-                            .background(brush, RoundedCornerShape(12.dp))
+                            .size(40.dp)
+                            .background(brush, RoundedCornerShape(6.dp))
                     )
                     Column(
                         modifier = Modifier.padding(start = 12.dp),
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                        verticalArrangement = Arrangement.spacedBy(6.dp)
                     ) {
                         Box(
                             modifier = Modifier
-                                .fillMaxWidth(0.8f)
-                                .height(16.dp)
+                                .fillMaxWidth(0.6f)
+                                .height(14.dp)
                                 .background(brush, RoundedCornerShape(4.dp))
                         )
                         Box(
                             modifier = Modifier
-                                .fillMaxWidth(0.5f)
-                                .height(12.dp)
+                                .fillMaxWidth(0.35f)
+                                .height(11.dp)
                                 .background(brush, RoundedCornerShape(4.dp))
                         )
                     }
@@ -82,16 +81,10 @@ fun ShimmerList(modifier: Modifier = Modifier, itemCount: Int = 6) {
     }
 }
 
-/**
- * Soldan sağa kayan ışıltı efekti.
- *
- * `rememberInfiniteTransition` + `infiniteRepeatable`: bitmeyen bir animasyon kurar.
- * Değişen değer, gradient'in yatay konumudur; her karede biraz sağa kayar.
- */
 @Composable
 private fun shimmerBrush(): Brush {
-    val base = MaterialTheme.colorScheme.surfaceVariant
-    val highlight = MaterialTheme.colorScheme.surface
+    val base = MaterialTheme.colorScheme.surfaceContainer
+    val highlight = MaterialTheme.colorScheme.surfaceVariant
     val translate by rememberInfiniteTransition(label = "shimmer").animateFloat(
         initialValue = 0f,
         targetValue = SHIMMER_DISTANCE,

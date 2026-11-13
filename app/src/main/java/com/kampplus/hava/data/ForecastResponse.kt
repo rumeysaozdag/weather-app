@@ -29,7 +29,8 @@ data class ForecastResponse(
     val longitude: Double = 0.0,
     val current: CurrentResponse? = null,
     val hourly: HourlyResponse? = null,
-    val daily: DailyResponse? = null
+    val daily: DailyResponse? = null,
+    val airQuality: AirQualityResponse? = null
 )
 
 data class CurrentResponse(
@@ -43,7 +44,11 @@ data class CurrentResponse(
     @SerializedName("relative_humidity_2m")
     val relativeHumidity: Int? = null,
     @SerializedName("wind_speed_10m")
-    val windSpeed: Double? = null
+    val windSpeed: Double? = null,
+    @SerializedName("dew_point_2m") val dewPoint: Double? = null,
+    @SerializedName("surface_pressure") val surfacePressure: Double? = null,
+    val visibility: Double? = null,
+    @SerializedName("uv_index") val uvIndex: Double? = null
 )
 
 data class HourlyResponse(
@@ -53,7 +58,8 @@ data class HourlyResponse(
     @SerializedName("weather_code")
     val weatherCode: List<Int?>? = null,
     @SerializedName("precipitation_probability")
-    val precipitationProbability: List<Int?>? = null
+    val precipitationProbability: List<Int?>? = null,
+    @SerializedName("uv_index") val uvIndex: List<Double?>? = null
 )
 
 data class DailyResponse(
@@ -65,7 +71,27 @@ data class DailyResponse(
     @SerializedName("temperature_2m_min")
     val temperatureMin: List<Double?>? = null,
     @SerializedName("precipitation_probability_max")
-    val precipitationProbabilityMax: List<Int?>? = null
+    val precipitationProbabilityMax: List<Int?>? = null,
+    val sunrise: List<String?>? = null,
+    val sunset: List<String?>? = null,
+    val moonrise: List<String?>? = null,
+    val moonset: List<String?>? = null,
+    @SerializedName("moon_phase") val moonPhase: List<Double?>? = null,
+    @SerializedName("uv_index_max") val uvIndexMax: List<Double?>? = null
+)
+
+data class AirQualityResponse(val current: AirQualityCurrentResponse? = null)
+
+data class AirQualityCurrentResponse(
+    val time: String? = null,
+    @SerializedName("european_aqi") val europeanAqi: Int? = null,
+    @SerializedName("uv_index") val uvIndex: Double? = null,
+    @SerializedName("grass_pollen") val grassPollen: Double? = null,
+    @SerializedName("birch_pollen") val birchPollen: Double? = null,
+    @SerializedName("ragweed_pollen") val ragweedPollen: Double? = null,
+    @SerializedName("mugwort_pollen") val mugwortPollen: Double? = null,
+    @SerializedName("olive_pollen") val olivePollen: Double? = null,
+    @SerializedName("alder_pollen") val alderPollen: Double? = null
 )
 
 /**
@@ -80,7 +106,8 @@ fun ForecastResponse.toForecast(): Forecast {
     return Forecast(
         current = currentResponse.toCurrentWeather(),
         hourly = hourly.toHourlyForecasts(),
-        daily = daily.toDailyForecasts()
+        daily = daily.toDailyForecasts(),
+        airQuality = airQuality?.current?.toAirQuality()
     )
 }
 
@@ -91,7 +118,17 @@ private fun CurrentResponse.toCurrentWeather() = CurrentWeather(
     observedAt = LocalDateTime.parse(time),
     apparentTemperatureC = apparentTemperature,
     humidityPercent = relativeHumidity,
-    windSpeedKmh = windSpeed
+    windSpeedKmh = windSpeed,
+    dewPointC = dewPoint,
+    pressureHpa = surfacePressure,
+    visibilityMeters = visibility,
+    uvIndex = uvIndex
+)
+
+internal fun AirQualityCurrentResponse.toAirQuality() = com.kampplus.hava.model.AirQuality(
+    europeanAqi = europeanAqi,
+    uvIndex = uvIndex,
+    pollenGrainsPerCubicMeter = listOfNotNull(grassPollen, birchPollen, ragweedPollen, mugwortPollen, olivePollen, alderPollen).maxOrNull()
 )
 
 /**
@@ -110,7 +147,8 @@ private fun HourlyResponse?.toHourlyForecasts(): List<HourlyForecast> {
             time = LocalDateTime.parse(times[index]),
             temperatureC = temperature,
             weatherCode = code,
-            precipitationProbability = precipitationProbability?.getOrNull(index)
+            precipitationProbability = precipitationProbability?.getOrNull(index),
+            uvIndex = uvIndex?.getOrNull(index)
         )
     }
 }
@@ -127,7 +165,13 @@ private fun DailyResponse?.toDailyForecasts(): List<DailyForecast> {
             minTemperatureC = min,
             maxTemperatureC = max,
             weatherCode = code,
-            precipitationProbability = precipitationProbabilityMax?.getOrNull(index)
+            precipitationProbability = precipitationProbabilityMax?.getOrNull(index),
+            sunrise = sunrise?.getOrNull(index)?.let(LocalDateTime::parse),
+            sunset = sunset?.getOrNull(index)?.let(LocalDateTime::parse),
+            moonrise = moonrise?.getOrNull(index)?.let(LocalDateTime::parse),
+            moonset = moonset?.getOrNull(index)?.let(LocalDateTime::parse),
+            moonPhase = moonPhase?.getOrNull(index),
+            uvIndexMax = uvIndexMax?.getOrNull(index)
         )
     }
 }

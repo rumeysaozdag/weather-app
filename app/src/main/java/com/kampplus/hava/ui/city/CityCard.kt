@@ -1,6 +1,8 @@
-
 package com.kampplus.hava.ui.city
 
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.animateContentSize
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -8,14 +10,9 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.animateContentSize
-import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -24,7 +21,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -32,7 +30,7 @@ import com.kampplus.hava.model.City
 import com.kampplus.hava.ui.theme.HavaTheme
 
 /**
- * Listedeki tek bir şehir kartı.
+ * Listedeki tek bir şehir kartı (Notion veritabanı satırı stili).
  * Türkiye'deki şehirler için plaka kodu, diğer şehirler için ülke kodu gösterir.
  */
 @Composable
@@ -45,24 +43,37 @@ fun CityCard(
     modifier: Modifier = Modifier
 ) {
     val cardColor = animateColorAsState(
-        targetValue = if (selected) Color.White.copy(alpha = 0.24f) else Color.White.copy(alpha = 0.105f),
+        targetValue = if (selected) {
+            MaterialTheme.colorScheme.surfaceContainer
+        } else {
+            MaterialTheme.colorScheme.surface
+        },
         label = "city-card-selection"
     ).value
-    val cardElevation = animateDpAsState(
-        targetValue = if (selected) 5.dp else 1.dp,
-        label = "city-card-elevation"
+
+    val borderColor = animateColorAsState(
+        targetValue = if (selected) {
+            MaterialTheme.colorScheme.outline
+        } else {
+            MaterialTheme.colorScheme.outlineVariant
+        },
+        label = "city-card-border"
     ).value
-    Card(
+
+    Surface(
         onClick = onClick,
-        modifier = modifier.fillMaxWidth().animateContentSize(),
-        shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = cardColor
-        ),
-        elevation = CardDefaults.cardElevation(defaultElevation = cardElevation)
+        modifier = modifier
+            .fillMaxWidth()
+            .animateContentSize(),
+        shape = RoundedCornerShape(8.dp),
+        color = cardColor,
+        contentColor = MaterialTheme.colorScheme.onSurface,
+        border = BorderStroke(1.dp, borderColor),
+        tonalElevation = 0.dp,
+        shadowElevation = 0.dp
     ) {
         Row(
-            modifier = Modifier.padding(horizontal = 14.dp, vertical = 13.dp),
+            modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
@@ -72,30 +83,38 @@ fun CityCard(
                 Text(
                     text = city.name,
                     style = MaterialTheme.typography.titleMedium,
-                    color = Color.White,
+                    color = MaterialTheme.colorScheme.onSurface,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
                 Text(
                     text = city.subtitle,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = Color.White.copy(alpha = 0.72f),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
             }
 
-            IconButton(onClick = onFavoriteClick) {
+            IconButton(
+                onClick = onFavoriteClick,
+                modifier = Modifier.size(36.dp)
+            ) {
                 Text(
                     text = if (isFavorite) "★" else "☆",
-                    color = if (isFavorite) Color(0xFFFFD18A) else Color.White.copy(alpha = 0.72f),
-                    style = MaterialTheme.typography.titleLarge
+                    color = if (isFavorite) {
+                        MaterialTheme.colorScheme.tertiary
+                    } else {
+                        MaterialTheme.colorScheme.onSurfaceVariant
+                    },
+                    style = MaterialTheme.typography.titleMedium
                 )
             }
             Icon(
                 imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
                 contentDescription = null,
-                tint = Color.White.copy(alpha = 0.78f)
+                modifier = Modifier.size(18.dp),
+                tint = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
     }
@@ -198,7 +217,7 @@ private fun cityBadgeCode(city: City): String {
 }
 
 /**
- * Şehir rozetinin görünümü.
+ * Şehir rozetinin Notion etiket (tag) görünümü.
  */
 @Composable
 private fun CountryBadge(
@@ -206,25 +225,25 @@ private fun CountryBadge(
     isTurkishCity: Boolean,
     modifier: Modifier = Modifier
 ) {
-    val badgeColor = if (isTurkishCity) {
-        when ((code.toIntOrNull() ?: 0) % 3) {
-            0 -> MaterialTheme.colorScheme.primaryContainer to MaterialTheme.colorScheme.onPrimaryContainer
-            1 -> MaterialTheme.colorScheme.secondaryContainer to MaterialTheme.colorScheme.onSecondaryContainer
-            else -> MaterialTheme.colorScheme.tertiaryContainer to MaterialTheme.colorScheme.onTertiaryContainer
-        }
+    val badgeColors = if (isTurkishCity) {
+        MaterialTheme.colorScheme.surfaceVariant to MaterialTheme.colorScheme.onSurface
     } else {
-        MaterialTheme.colorScheme.surfaceVariant to MaterialTheme.colorScheme.onSurfaceVariant
+        MaterialTheme.colorScheme.secondaryContainer to MaterialTheme.colorScheme.onSecondaryContainer
     }
     Surface(
-        modifier = modifier.size(48.dp),
-        shape = RoundedCornerShape(16.dp),
-        color = badgeColor.first,
-        contentColor = badgeColor.second
+        modifier = modifier.size(38.dp),
+        shape = RoundedCornerShape(6.dp),
+        color = badgeColors.first,
+        contentColor = badgeColors.second,
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
     ) {
         Box(contentAlignment = Alignment.Center) {
             Text(
                 text = code,
-                style = MaterialTheme.typography.labelLarge
+                style = MaterialTheme.typography.labelMedium.copy(
+                    fontFamily = FontFamily.Monospace,
+                    fontWeight = FontWeight.SemiBold
+                )
             )
         }
     }

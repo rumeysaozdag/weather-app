@@ -12,7 +12,8 @@ import java.time.LocalDateTime
 data class Forecast(
     val current: CurrentWeather,
     val hourly: List<HourlyForecast>,
-    val daily: List<DailyForecast>
+    val daily: List<DailyForecast>,
+    val airQuality: AirQuality? = null
 )
 
 /**
@@ -25,7 +26,17 @@ data class CurrentWeather(
     val observedAt: LocalDateTime,
     val apparentTemperatureC: Double? = null,
     val humidityPercent: Int? = null,
-    val windSpeedKmh: Double? = null
+    val windSpeedKmh: Double? = null,
+    val dewPointC: Double? = null,
+    val pressureHpa: Double? = null,
+    val visibilityMeters: Double? = null,
+    val uvIndex: Double? = null
+)
+
+data class AirQuality(
+    val europeanAqi: Int? = null,
+    val uvIndex: Double? = null,
+    val pollenGrainsPerCubicMeter: Double? = null
 )
 
 /** Tek bir saatlik tahmin satırı. */
@@ -33,7 +44,8 @@ data class HourlyForecast(
     val time: LocalDateTime,
     val temperatureC: Double,
     val weatherCode: Int,
-    val precipitationProbability: Int? = null
+    val precipitationProbability: Int? = null,
+    val uvIndex: Double? = null
 )
 
 /** Tek bir günlük tahmin satırı: o günün en düşük ve en yüksek sıcaklığı. */
@@ -42,5 +54,11 @@ data class DailyForecast(
     val minTemperatureC: Double,
     val maxTemperatureC: Double,
     val weatherCode: Int,
-    val precipitationProbability: Int? = null
+    val precipitationProbability: Int? = null,
+    val sunrise: LocalDateTime? = null,
+    val sunset: LocalDateTime? = null,
+    val moonrise: LocalDateTime? = null,
+    val moonset: LocalDateTime? = null,
+    val moonPhase: Double? = null,
+    val uvIndexMax: Double? = null
 )

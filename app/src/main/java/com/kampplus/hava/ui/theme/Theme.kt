@@ -5,48 +5,75 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.Color
 
 /**
- * Açık tema paleti. Her Material rolü ([Color.kt]'deki) bir renge bağlanır:
- * `primary` ana vurgu, `surface` kart zemini, `onSurface` o zemindeki yazı rengidir.
+ * Varsayılan görünümde uygulanan Kraliyet Moru & Gece İndigo (Midnight Violet) tema.
+ * Beyaz tema yerine her durumda referans görseldeki mor/indigo atmosferi korur.
  */
 private val LightColors = lightColorScheme(
-    primary = Teal40,
-    onPrimary = Neutral99,
-    primaryContainer = Teal90,
-    onPrimaryContainer = Teal10,
-    secondary = Amber40,
-    secondaryContainer = Amber90,
-    background = Neutral99,
-    onBackground = Neutral10,
-    surface = Neutral99,
-    onSurface = Neutral10,
-    surfaceVariant = NeutralVariant90,
-    onSurfaceVariant = NeutralVariant30,
-    surfaceContainer = Neutral95,
-    error = Red40
+    primary = VioletPrimary,
+    onPrimary = Color.White,
+    primaryContainer = VioletPrimaryContainer,
+    onPrimaryContainer = VioletTextPrimary,
+    secondary = VioletSecondary,
+    onSecondary = Color.White,
+    secondaryContainer = VioletSecondaryContainer,
+    onSecondaryContainer = VioletTextPrimary,
+    tertiary = VioletTertiary,
+    onTertiary = Color.White,
+    tertiaryContainer = VioletTertiaryContainer,
+    onTertiaryContainer = VioletTextPrimary,
+    background = VioletBackground,
+    onBackground = VioletTextPrimary,
+    surface = VioletSurface,
+    onSurface = VioletTextPrimary,
+    surfaceVariant = VioletSurfaceVariant,
+    onSurfaceVariant = VioletTextSecondary,
+    surfaceContainer = VioletSurfaceContainer,
+    surfaceContainerHigh = VioletSurfaceVariant,
+    outline = VioletBorderStrong,
+    outlineVariant = VioletBorder,
+    error = VioletError,
+    onError = Color.White,
+    errorContainer = VioletErrorContainer,
+    onErrorContainer = VioletTextPrimary
 )
 
-/** Koyu tema paleti. Aynı roller, koyu zemine uygun tonlarla. */
+/**
+ * Alternatif koyu görünümde uygulanan Derin Kozmik Mor paleti.
+ */
 private val DarkColors = darkColorScheme(
-    primary = Teal80,
-    onPrimary = Teal20,
-    primaryContainer = Teal30,
-    onPrimaryContainer = Teal90,
-    secondary = Amber80,
-    background = Neutral10,
-    onBackground = Neutral90,
-    surface = Neutral10,
-    onSurface = Neutral90,
-    onSurfaceVariant = NeutralVariant90,
-    error = Red80
+    primary = DeepVioletPrimary,
+    onPrimary = Color.White,
+    primaryContainer = DeepVioletPrimaryContainer,
+    onPrimaryContainer = DeepVioletTextPrimary,
+    secondary = DeepVioletSecondary,
+    onSecondary = Color.White,
+    secondaryContainer = DeepVioletSecondaryContainer,
+    onSecondaryContainer = DeepVioletTextPrimary,
+    tertiary = DeepVioletTertiary,
+    onTertiary = Color.White,
+    tertiaryContainer = DeepVioletTertiaryContainer,
+    onTertiaryContainer = DeepVioletTextPrimary,
+    background = DeepVioletBackground,
+    onBackground = DeepVioletTextPrimary,
+    surface = DeepVioletSurface,
+    onSurface = DeepVioletTextPrimary,
+    surfaceVariant = DeepVioletSurfaceVariant,
+    onSurfaceVariant = DeepVioletTextSecondary,
+    surfaceContainer = DeepVioletSurfaceContainer,
+    surfaceContainerHigh = DeepVioletSurfaceVariant,
+    outline = DeepVioletBorderStrong,
+    outlineVariant = DeepVioletBorder,
+    error = DeepVioletError,
+    onError = Color.White,
+    errorContainer = DeepVioletErrorContainer,
+    onErrorContainer = DeepVioletTextPrimary
 )
 
 /**
  * Uygulamanın teması. Bütün ekranlar bunun içine sarmalanır.
- *
- * @param darkTheme Varsayılan olarak telefonun sistem ayarını izler
- *   ([isSystemInDarkTheme]). @Preview'larda elle `true` verip koyu temayı deneyebilirsin.
  */
 @Composable
 fun HavaTheme(darkTheme: Boolean = isSystemInDarkTheme(), content: @Composable () -> Unit) {

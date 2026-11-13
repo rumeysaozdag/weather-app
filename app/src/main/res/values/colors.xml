@@ -4,6 +4,6 @@
     XML tarafındaki tek renk: uygulama simgesinin arka planı.
     Ekranlardaki renkler Compose'ta tanımlıdır (ui/theme/Color.kt).
   -->
-  <color name="ic_launcher_background">#0288D1</color>
-  <color name="splash_background">#203650</color>
+  <color name="ic_launcher_background">#2E335A</color>
+  <color name="splash_background">#1C1B33</color>
 </resources>

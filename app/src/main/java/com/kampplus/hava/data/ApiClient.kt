@@ -22,6 +22,10 @@ object ApiClient {
 
     private const val GEOCODING_BASE_URL = "https://geocoding-api.open-meteo.com/"
     private const val FORECAST_BASE_URL = "https://api.open-meteo.com/"
+    private const val AIR_QUALITY_BASE_URL = "https://air-quality-api.open-meteo.com/"
+    private const val TRAFFIC_BASE_URL = "https://api.tomtom.com/"
+    private const val ROUTING_BASE_URL = "https://router.project-osrm.org/"
+    private const val RAINVIEWER_BASE_URL = "https://api.rainviewer.com/"
 
     private val httpClient: OkHttpClient by lazy {
         val logging = HttpLoggingInterceptor().apply {
@@ -33,11 +37,34 @@ object ApiClient {
             .build()
     }
 
+    // Traffic keys are passed as query parameters by TomTom. Keep this client free
+    // of the DEBUG URL logger so the key is never printed to Logcat.
+    private val trafficHttpClient: OkHttpClient by lazy { OkHttpClient.Builder().build() }
+
     /** Şehir arama istemcisi. Kullanımı: `ApiClient.cityApi.search("Ankara")` */
     val cityApi: CityApi by lazy { createApi(GEOCODING_BASE_URL) }
 
     /** Hava tahmini istemcisi. */
     val forecastApi: ForecastApi by lazy { createApi(FORECAST_BASE_URL) }
+
+    /** Air quality and pollen data are served from Open-Meteo's separate endpoint. */
+    val airQualityApi: AirQualityApi by lazy { createApi(AIR_QUALITY_BASE_URL) }
+
+    /** TomTom live traffic flow for the road segment closest to a coordinate. */
+    val trafficApi: TrafficApi by lazy {
+        Retrofit.Builder()
+            .baseUrl(TRAFFIC_BASE_URL)
+            .client(trafficHttpClient)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+            .create(TrafficApi::class.java)
+    }
+
+    /** Public OSRM demo routing endpoint; suitable for prototypes, not production traffic. */
+    val routingApi: RoutingApi by lazy { createApi(ROUTING_BASE_URL) }
+
+    /** Public RainViewer radar frame manifest; no API key is required. */
+    val rainViewerApi: RainViewerApi by lazy { createApi(RAINVIEWER_BASE_URL) }
 
     /**
      * Verilen adres için bir Retrofit arayüzü üretir.

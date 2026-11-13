@@ -110,10 +110,9 @@ class CityViewModelTest {
         val callsAfterInit = repository.callCount
 
         viewModel.onQueryChange("Rize")
-        advanceUntilIdle()
 
         assertEquals("Rize", viewModel.query.value)
-        // Her harfte istek atılmaz; arama yalnızca search() ile tetiklenir.
+        // Debounce süresi dolmadan hemen istek atılmaz.
         assertEquals(callsAfterInit, repository.callCount)
     }
 

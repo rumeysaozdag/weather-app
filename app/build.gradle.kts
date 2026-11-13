@@ -22,6 +22,15 @@ android {
         versionName = "1.0.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        val localPropertiesFile = rootProject.file("local.properties")
+        val localProperties = Properties().apply {
+            if (localPropertiesFile.exists()) localPropertiesFile.inputStream().use(::load)
+        }
+        val trafficKey = localProperties.getProperty("TOMTOM_API_KEY", "")
+            .replace("\\", "\\\\")
+            .replace("\"", "\\\"")
+        buildConfigField("String", "TOMTOM_API_KEY", "\"$trafficKey\"")
     }
 
     // Imza bilgileri repoya girmez: keystore.properties (bkz. keystore.properties.example).
@@ -97,6 +106,7 @@ dependencies {
     implementation(libs.retrofit)
     implementation(libs.retrofit.converter.gson)
     implementation(libs.okhttp.logging.interceptor)
+    implementation(libs.osmdroid.android)
 
     testImplementation(libs.junit)
     testImplementation(libs.kotlinx.coroutines.test)

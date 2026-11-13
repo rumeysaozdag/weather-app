@@ -1,62 +1,64 @@
 package com.kampplus.hava.ui.city
 
+import android.Manifest
+import android.content.pm.PackageManager
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.core.RepeatMode
-import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
-import androidx.compose.animation.core.tween
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.offset
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Surface
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.draw.rotate
-import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.kampplus.hava.R
@@ -67,16 +69,10 @@ import com.kampplus.hava.ui.component.ErrorView
 import com.kampplus.hava.ui.component.ShimmerList
 import com.kampplus.hava.ui.component.WeatherAssistantButton
 import com.kampplus.hava.ui.theme.HavaTheme
+import kotlinx.coroutines.launch
 
 /**
  * Şehir arama ekranının "bağlayıcı" katmanı.
- *
- * Tek işi ViewModel'i edinip state'i toplamak ve [CityScreen]'e aktarmaktır.
- * Bu ayrım sayesinde [CityScreen] ViewModel tanımaz: @Preview'da ve testte
- * elle state verilerek çalıştırılabilir.
- *
- * `collectAsStateWithLifecycle`: StateFlow'u Compose state'ine
- * çevirir ve uygulama arka plandayken dinlemeyi durdurur.
  */
 @Composable
 fun CityRoute(
@@ -88,6 +84,23 @@ fun CityRoute(
     modifier: Modifier = Modifier,
     viewModel: CityViewModel = viewModel()
 ) {
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+    val requestLocationPermission = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { granted ->
+        if (granted) {
+            scope.launch {
+                runCatching { CurrentLocationProvider(context).getLocation() }
+                    .onSuccess { location ->
+                        onCityClick(City(-1L, "Konumum", location.latitude, location.longitude, null, null, null))
+                    }
+                    .onFailure { error -> Toast.makeText(context, error.message ?: "Konum alınamadı.", Toast.LENGTH_LONG).show() }
+            }
+        } else {
+            Toast.makeText(context, "Konum izni verilmedi. Şehir aramayı kullanabilirsiniz.", Toast.LENGTH_LONG).show()
+        }
+    }
     val query by viewModel.query.collectAsStateWithLifecycle()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val selectedCityId by viewModel.selectedCityId.collectAsStateWithLifecycle()
@@ -104,14 +117,21 @@ fun CityRoute(
         onToggleFavorite = onToggleFavorite,
         onOpenFavorites = onOpenFavorites,
         onToggleTheme = onToggleTheme,
+        onMyLocation = {
+            if (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                scope.launch {
+                    runCatching { CurrentLocationProvider(context).getLocation() }
+                        .onSuccess { location -> onCityClick(City(-1L, "Konumum", location.latitude, location.longitude, null, null, null)) }
+                        .onFailure { error -> Toast.makeText(context, error.message ?: "Konum alınamadı.", Toast.LENGTH_LONG).show() }
+                }
+            } else requestLocationPermission.launch(Manifest.permission.ACCESS_COARSE_LOCATION)
+        },
         modifier = modifier
     )
 }
 
 /**
- * Şehir arama ekranı: `when` ile her duruma bir görünüm.
- *
- * State tutmaz, yalnızca aldığı değerleri çizer ve olayları yukarı bildirir.
+ * Şehir arama ekranı (Notion çalışma alanı ve veritabanı görünümü).
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -127,132 +147,146 @@ fun CityScreen(
     onToggleFavorite: (City) -> Unit = {},
     onOpenFavorites: () -> Unit = {},
     onToggleTheme: () -> Unit = {},
+    onMyLocation: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
-    Box(
+    Scaffold(
         modifier = modifier
             .fillMaxSize()
-            .background(
-                Brush.verticalGradient(
-                    colors = listOf(
-                        Color(0xFF688597),
-                        Color(0xFF405F78),
-                        Color(0xFF203650)
-                    )
-                )
-            )
-    ) {
-      Box(
-          modifier = Modifier
-              .align(Alignment.TopEnd)
-              .offset(x = 110.dp, y = 70.dp)
-              .size(260.dp)
-              .background(
-                  Brush.radialGradient(
-                      colors = listOf(Color(0xFFB2E7EB).copy(alpha = 0.22f), Color.Transparent)
-                  ),
-                  CircleShape
-              )
-      )
-      Box(
-          modifier = Modifier
-              .align(Alignment.BottomStart)
-              .offset(x = (-130).dp, y = 100.dp)
-              .size(300.dp)
-              .background(
-                  Brush.radialGradient(
-                      colors = listOf(Color(0xFFB5C7FF).copy(alpha = 0.14f), Color.Transparent)
-                  ),
-                  CircleShape
-              )
-      )
-      Text("☁️", modifier = Modifier.align(Alignment.TopEnd).offset(x = 22.dp, y = 126.dp).alpha(0.12f), style = MaterialTheme.typography.displayLarge)
-      Text("☁️", modifier = Modifier.align(Alignment.BottomStart).offset(x = (-28).dp, y = 2.dp).alpha(0.09f), style = MaterialTheme.typography.displayLarge)
-      Scaffold(
-        modifier = Modifier.fillMaxSize(),
-        containerColor = Color.Transparent,
-        contentColor = Color.White,
+            .background(MaterialTheme.colorScheme.background),
+        containerColor = MaterialTheme.colorScheme.background,
+        contentColor = MaterialTheme.colorScheme.onBackground,
         floatingActionButton = {
             WeatherAssistantButton(forecast = null)
         },
         topBar = {
-            TopAppBar(
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent),
-                title = {
-                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                        Surface(
-                            shape = RoundedCornerShape(14.dp),
-                            color = MaterialTheme.colorScheme.primaryContainer,
-                            modifier = Modifier.size(40.dp)
+            Column {
+                TopAppBar(
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = MaterialTheme.colorScheme.background,
+                        titleContentColor = MaterialTheme.colorScheme.onBackground
+                    ),
+                    title = {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(10.dp)
                         ) {
-                            Box(contentAlignment = Alignment.Center) {
-                                Text("☀", style = MaterialTheme.typography.titleLarge, color = MaterialTheme.colorScheme.onPrimaryContainer)
+                            Surface(
+                                shape = RoundedCornerShape(6.dp),
+                                color = MaterialTheme.colorScheme.surfaceVariant,
+                                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
+                                modifier = Modifier.size(34.dp)
+                            ) {
+                                Box(contentAlignment = Alignment.Center) {
+                                    Text("⛅", style = MaterialTheme.typography.titleMedium)
+                                }
+                            }
+                            Column {
+                                Text(
+                                    text = stringResource(R.string.app_name),
+                                    style = MaterialTheme.typography.titleMedium,
+                                    color = MaterialTheme.colorScheme.onBackground
+                                )
+                                Text(
+                                    text = "Hava Durumu Çalışma Alanı",
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
                             }
                         }
-                        Column {
-                            Text(stringResource(R.string.app_name), style = MaterialTheme.typography.titleMedium, color = Color.White)
-                            Text("HAVA DURUMU", style = MaterialTheme.typography.labelSmall, color = Color.White.copy(alpha = 0.72f))
+                    },
+                    actions = {
+                        val themeActionLabel = stringResource(R.string.action_toggle_theme)
+                        IconButton(onClick = onOpenFavorites) {
+                            Text(
+                                text = "★",
+                                modifier = Modifier.semantics { contentDescription = "Şehirlerim" },
+                                color = MaterialTheme.colorScheme.tertiary,
+                                style = MaterialTheme.typography.titleMedium
+                            )
+                        }
+                        IconButton(onClick = onToggleTheme) {
+                            Text(
+                                text = "◐",
+                                modifier = Modifier.semantics {
+                                    contentDescription = themeActionLabel
+                                },
+                                color = MaterialTheme.colorScheme.onSurface,
+                                style = MaterialTheme.typography.titleMedium
+                            )
                         }
                     }
-                },
-                actions = {
-                    val themeActionLabel = stringResource(R.string.action_toggle_theme)
-                    IconButton(onClick = onOpenFavorites) {
-                        Text(
-                            text = "★",
-                            modifier = Modifier.semantics { contentDescription = "Şehirlerim" },
-                            color = MaterialTheme.colorScheme.secondary,
-                            style = MaterialTheme.typography.titleLarge
-                        )
-                    }
-                    IconButton(onClick = onToggleTheme) {
-                        Text(
-                            text = "☾",
-                            modifier = Modifier.semantics {
-                                contentDescription = themeActionLabel
-                            },
-                            color = Color.White,
-                            style = MaterialTheme.typography.titleLarge
-                        )
-                    }
-                }
-            )
+                )
+                HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+            }
         }
-      ) { innerPadding ->
+    ) { innerPadding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(horizontal = 16.dp)
                 .padding(innerPadding)
+                .padding(horizontal = 16.dp)
         ) {
-            WelcomeCard()
+            Spacer(Modifier.height(12.dp))
+            WelcomeCallout()
             SearchBar(
                 query = query,
                 onQueryChange = onQueryChange,
                 onSearch = onSearch,
-                modifier = Modifier.padding(top = 16.dp, bottom = 10.dp)
+                modifier = Modifier.padding(top = 12.dp, bottom = 8.dp)
             )
+            OutlinedButton(
+                onClick = onMyLocation,
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(8.dp),
+                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
+                colors = ButtonDefaults.outlinedButtonColors(
+                    containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                    contentColor = MaterialTheme.colorScheme.onSurface
+                )
+            ) {
+                Text(
+                    text = "⌖  Konumumu kullan",
+                    style = MaterialTheme.typography.labelLarge
+                )
+            }
+
             val resultCount = (uiState as? LoadState.Success)?.data?.size ?: 0
             Row(
-                modifier = Modifier.fillMaxWidth().padding(vertical = 6.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 14.dp, bottom = 8.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text("ŞEHİRLER", style = MaterialTheme.typography.labelLarge, color = Color.White.copy(alpha = 0.82f), modifier = Modifier.weight(1f))
-                Surface(shape = RoundedCornerShape(50), color = Color(0xFFFFD4AE)) {
+                Text(
+                    text = "ŞEHİRLER",
+                    style = MaterialTheme.typography.labelMedium.copy(
+                        fontFamily = FontFamily.Monospace
+                    ),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.weight(1f)
+                )
+                Surface(
+                    shape = RoundedCornerShape(4.dp),
+                    color = MaterialTheme.colorScheme.surfaceVariant,
+                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
+                ) {
                     Text(
                         text = stringResource(R.string.city_result_count, resultCount),
-                        style = MaterialTheme.typography.labelMedium,
-                        color = Color(0xFF3A4054),
-                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
+                        style = MaterialTheme.typography.labelSmall.copy(
+                            fontFamily = FontFamily.Monospace
+                        ),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
                     )
                 }
             }
-            Spacer(Modifier.height(4.dp))
-            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                // Dört durumun tamamı burada karşılanır. `sealed` olduğu için
-                // bir dalı unutursak Kotlin derleme hatası verir.
+
+            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.TopCenter) {
                 when (uiState) {
-                    LoadState.Loading -> HavaTheme(darkTheme = true) { ShimmerList() }
+                    LoadState.Loading -> ShimmerList()
                     is LoadState.Success -> CityList(
                         cities = uiState.data,
                         selectedCityId = selectedCityId,
@@ -263,93 +297,74 @@ fun CityScreen(
                             onCityClick(city)
                         }
                     )
-                    LoadState.Empty -> HavaTheme(darkTheme = true) {
-                        EmptyView(
-                            title = "Şehir bulunamadı",
-                            message = "Yazımı kontrol et ya da başka bir şehir dene."
-                        )
-                    }
-                    is LoadState.Error -> HavaTheme(darkTheme = true) {
-                        ErrorView(message = uiState.message, onRetry = onSearch)
-                    }
+                    LoadState.Empty -> EmptyView(
+                        title = "Şehir bulunamadı",
+                        message = "Yazımı kontrol et ya da başka bir şehir dene."
+                    )
+                    is LoadState.Error -> ErrorView(message = uiState.message, onRetry = onSearch)
                 }
             }
         }
-      }
     }
 }
 
 @Composable
-private fun WelcomeCard() {
-    val transition = rememberInfiniteTransition(label = "weather-icon-float")
-    val floatY = transition.animateFloat(
-        initialValue = 0f,
-        targetValue = -7f,
-        animationSpec = infiniteRepeatable(tween(1_800), repeatMode = RepeatMode.Reverse),
-        label = "weather-icon-y"
-    ).value
-    val rotation = transition.animateFloat(
-        initialValue = -5f,
-        targetValue = 5f,
-        animationSpec = infiniteRepeatable(tween(2_600), repeatMode = RepeatMode.Reverse),
-        label = "weather-icon-rotation"
-    ).value
-
+private fun WelcomeCallout() {
     AnimatedVisibility(
         visible = true,
-        enter = fadeIn(tween(500)) + slideInVertically(
-            initialOffsetY = { it / 5 },
-            animationSpec = tween(500)
+        enter = fadeIn(tween(350)) + slideInVertically(
+            initialOffsetY = { it / 6 },
+            animationSpec = tween(350)
         )
     ) {
-      Card(
-        modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
-        shape = RoundedCornerShape(26.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.Transparent)
-    ) {
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(
-                    Brush.linearGradient(
-                        listOf(Color(0xFF68AAB8).copy(alpha = 0.64f), Color(0xFF807399).copy(alpha = 0.56f))
-                    )
-                )
-                .padding(horizontal = 20.dp, vertical = 18.dp)
+        Surface(
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(8.dp),
+            color = MaterialTheme.colorScheme.surfaceVariant,
+            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
         ) {
-            Column(modifier = Modifier.align(Alignment.CenterStart).fillMaxWidth(0.72f)) {
-                Text("Havan nasıl?", style = MaterialTheme.typography.headlineSmall, color = Color.White)
-                Spacer(Modifier.height(4.dp))
-                Text("Bir şehir seç, günün tahminine göz at.", style = MaterialTheme.typography.bodyMedium, color = Color.White.copy(alpha = 0.88f))
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 14.dp, vertical = 12.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                Text("🌤️", style = MaterialTheme.typography.headlineSmall)
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = "Havan nasıl?",
+                        style = MaterialTheme.typography.titleSmall,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                    Spacer(Modifier.height(2.dp))
+                    Text(
+                        text = "Bir şehir seç, günün tahminine ve yol durumuna göz at.",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
             }
-            Text(
-                "🌤️",
-                style = MaterialTheme.typography.displayMedium,
-                modifier = Modifier.align(Alignment.CenterEnd).offset(y = floatY.dp).rotate(rotation)
-            )
         }
-      }
     }
 }
 
-/**
- * Arama kutusu.
- *
- * State tutmaz: değeri yukarıdan alır, her değişikliği yukarıya bildirir
- * ("değer aşağı, olay yukarı" — state hoisting).
- */
 @Composable
-private fun SearchBar(query: String, onQueryChange: (String) -> Unit, onSearch: () -> Unit, modifier: Modifier = Modifier) {
+private fun SearchBar(
+    query: String,
+    onQueryChange: (String) -> Unit,
+    onSearch: () -> Unit,
+    modifier: Modifier = Modifier
+) {
     val keyboardController = LocalSoftwareKeyboardController.current
     OutlinedTextField(
         value = query,
         onValueChange = onQueryChange,
         modifier = modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(18.dp),
-        label = { Text(stringResource(R.string.search_hint)) },
+        shape = RoundedCornerShape(8.dp),
+        placeholder = { Text(stringResource(R.string.search_hint)) },
         leadingIcon = { Icon(Icons.Filled.Search, contentDescription = null) },
         trailingIcon = {
-            // Temizle düğmesi yalnızca kutu doluyken görünür.
             if (query.isNotEmpty()) {
                 IconButton(onClick = { onQueryChange("") }) {
                     Icon(Icons.Filled.Clear, contentDescription = stringResource(R.string.action_clear))
@@ -357,22 +372,21 @@ private fun SearchBar(query: String, onQueryChange: (String) -> Unit, onSearch: 
             }
         },
         singleLine = true,
-        colors = androidx.compose.material3.OutlinedTextFieldDefaults.colors(
-            unfocusedTextColor = Color.White,
-            focusedTextColor = Color.White,
-            unfocusedContainerColor = Color.White.copy(alpha = 0.12f),
-            focusedContainerColor = Color.White.copy(alpha = 0.15f),
-            unfocusedBorderColor = Color.White.copy(alpha = 0.34f),
-            focusedBorderColor = Color.White.copy(alpha = 0.78f),
-            unfocusedLabelColor = Color.White.copy(alpha = 0.74f),
-            focusedLabelColor = Color.White,
-            unfocusedLeadingIconColor = Color.White.copy(alpha = 0.82f),
-            focusedLeadingIconColor = Color.White,
-            unfocusedTrailingIconColor = Color.White.copy(alpha = 0.8f),
-            focusedTrailingIconColor = Color.White,
-            cursorColor = Color.White
+        colors = OutlinedTextFieldDefaults.colors(
+            unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+            focusedTextColor = MaterialTheme.colorScheme.onSurface,
+            unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+            focusedContainerColor = MaterialTheme.colorScheme.surface,
+            unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant,
+            focusedBorderColor = MaterialTheme.colorScheme.primary,
+            unfocusedPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant,
+            focusedPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant,
+            unfocusedLeadingIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+            focusedLeadingIconColor = MaterialTheme.colorScheme.onSurface,
+            unfocusedTrailingIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+            focusedTrailingIconColor = MaterialTheme.colorScheme.onSurface,
+            cursorColor = MaterialTheme.colorScheme.primary
         ),
-        // Klavyedeki Enter tuşu "Ara" olur.
         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
         keyboardActions = KeyboardActions(
             onSearch = {
@@ -383,15 +397,6 @@ private fun SearchBar(query: String, onQueryChange: (String) -> Unit, onSearch: 
     )
 }
 
-/**
- * Kaydırılabilir şehir listesi.
- *
- * `LazyColumn` tembeldir: yüzlerce şehir olsa da yalnızca ekranda görünen satırlar
- * çizilir, kaybolanlar geri dönüştürülür.
- *
- * `key = { it.id }`: listedeki öğeler değiştiğinde Compose hangi satırın hangisi
- * olduğunu bilir; gereksiz yeniden çizim yapmaz.
- */
 @Composable
 private fun CityList(
     cities: List<City>,
@@ -403,8 +408,8 @@ private fun CityList(
 ) {
     LazyColumn(
         modifier = modifier.fillMaxSize(),
-        contentPadding = PaddingValues(16.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp)
+        contentPadding = PaddingValues(top = 10.dp, bottom = 80.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         items(items = cities, key = { it.id }) { city ->
             CityCard(
