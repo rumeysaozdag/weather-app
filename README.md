@@ -10,11 +10,19 @@ Uygulama Kotlin, Jetpack Compose ve Material 3 ile geliştirilmiştir. Hava, şe
 
 Havadaş, [Bilişim Kampı Android eğitimindeki hava durumu referans projesinden](https://github.com/tc-yusufburakdemir/weather-app) yola çıkar. Kaynak depoda şehir arama, tahmin ekranı ve üç katmanlı mimari adım adım gösterilir. Bu depoda ise bu temel; **Midnight Violet minimalist arayüz**, **favori şehirler**, **etkileşimli 7 günlük/saatlik tahmin tablosu**, **Türkiye haritası & canlı yağış radarı**, **OSRM rota hesaplama**, **yol önerisi** ve **radar/trafik destekli Hava Asistanı** ile genişletilmiştir. Mimari notları için [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) dosyasına bakabilirsin.
 
-## Uygulamaya bakış
+## Uygulamaya bakış (Ekran Görüntüleri)
 
-![Havadaş Midnight Violet minimalist arayüz önizlemesi: Şehir Arama, 7 Günlük/Saatlik Tahmin, Harita & Yağış Radarı ve Hava Asistanı](docs/images/app-overview.svg)
+### 1. Şehir Arama, Hava Tahmini ve Tıklanabilir 7 Günlük / Saatlik Görünüm
 
-*Yukarıdaki görsel Havadaş'ın Midnight Violet minimalist tasarım dilini ve dört ana çalışma ekranını (Şehir Arama, Etkileşimli 7 Günlük/Saatlik Tahmin, Harita & Canlı Yağış Radarı, Hava Asistanı) gösterir.*
+| Şehir Arama | Detaylı Hava Tahmini | 7 Günlük Tablo | 7 Günlük Saatlik Detay | Atmosfer, Güneş & Ay |
+| :---: | :---: | :---: | :---: | :---: |
+| <img src="docs/screenshots/01-sehir-arama.png" width="180" alt="Şehir Arama Ekranı" /> | <img src="docs/screenshots/02-tahmin-genel.png" width="180" alt="Detaylı Hava Tahmini" /> | <img src="docs/screenshots/03-yedi-gunluk-tablo.png" width="180" alt="7 Günlük Tablo" /> | <img src="docs/screenshots/04-yedi-gunluk-saatlik-detay.png" width="180" alt="7 Günlük Saatlik Detay" /> | <img src="docs/screenshots/05-atmosfer-gunes-ay.png" width="180" alt="Atmosfer, Güneş Yörüngesi ve Ay Evresi" /> |
+
+### 2. Hava Asistanı, Canlı Yağış Radarı, OSRM Rota ve Yol Önerisi
+
+| Hava Asistanı | Canlı Radar Analizi | Harita & Yağış Radarı | OSRM Sürüş Rotası | Yol Önerisi |
+| :---: | :---: | :---: | :---: | :---: |
+| <img src="docs/screenshots/06-hava-asistani.png" width="180" alt="Hava Asistanı" /> | <img src="docs/screenshots/07-hava-asistani-radar.jpg" width="180" alt="Hava Asistanı Canlı Radar Yanıtı" /> | <img src="docs/screenshots/08-harita-ve-radar.jpg" width="180" alt="Harita ve Yağış Radarı" /> | <img src="docs/screenshots/09-harita-osrm-rota.jpg" width="180" alt="OSRM Sürüş Rotası" /> | <img src="docs/screenshots/10-yol-onerisi.png" width="180" alt="Yol Önerisi Ekranı" /> |
 
 ## Özellikler
 
